@@ -10,7 +10,7 @@ async function bootstrap() {
     .setTitle('Pemesanan Jasa Buruh API')
     .setDescription('API untuk pemesanan jasa buruh pertanian')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth() // Untuk autentikasi Bearer JWT
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
