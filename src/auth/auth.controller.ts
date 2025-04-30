@@ -15,12 +15,28 @@ export class AuthController {
   @ApiOperation({ summary: 'Login and receive JWT token' })
   @ApiResponse({ status: 200, description: 'Login successful, JWT token returned.' })
   @ApiResponse({ status: 400, description: 'Invalid credentials.' })
-  async login(@Body() loginDto: LoginDto) {  // Use LoginDto here
-    const user = await this.authService.validateUser(loginDto.username, loginDto.password);
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
+  async login(@Body() loginDto: LoginDto) {
+    try {
+      // Validasi kredensial
+      const user = await this.authService.validateUser(loginDto.username, loginDto.password);
+      if (!user) {
+        throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
+      }
+      
+      // Menghasilkan token JWT setelah login sukses
+      const response = await this.authService.login(user);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Login successful',
+        data: response,
+      };
+    } catch (error) {
+      // Menangani error dan memberi response yang lebih jelas
+      throw new HttpException(
+        error.response || 'Internal server error',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    return this.authService.login(user); // Menghasilkan token JWT setelah login sukses
   }
 
   // Endpoint untuk registrasi farmer
@@ -28,8 +44,20 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new farmer' })
   @ApiResponse({ status: 201, description: 'Farmer registered successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid registration data.' })
-  registerFarmer(@Body() dto: RegisterFarmerDto) {
-    return this.authService.registerFarmer(dto); // Mendaftar farmer
+  async registerFarmer(@Body() dto: RegisterFarmerDto) {
+    try {
+      const response = await this.authService.registerFarmer(dto);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Farmer registered successfully',
+        data: response,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.response || 'Failed to register farmer',
+        error.status || HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   // Endpoint untuk registrasi laborer
@@ -37,7 +65,19 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new laborer' })
   @ApiResponse({ status: 201, description: 'Laborer registered successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid registration data.' })
-  registerLaborer(@Body() dto: RegisterLaborerDto) {
-    return this.authService.registerLaborer(dto); // Mendaftar laborer
+  async registerLaborer(@Body() dto: RegisterLaborerDto) {
+    try {
+      const response = await this.authService.registerLaborer(dto);
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Laborer registered successfully',
+        data: response,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.response || 'Failed to register laborer',
+        error.status || HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

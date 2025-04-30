@@ -1,33 +1,29 @@
-// src/auth/strategies/jwt.strategy.ts
-import { Injectable, Inject } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport'; // Ganti ke PassportStrategy
+import { ExtractJwt, Strategy } from 'passport-jwt'; // Gunakan Strategy dari passport-jwt
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
+import { UserType } from '../../users/entities/user.entity';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy) { // Gunakan PassportStrategy dengan Strategy
   constructor(
-    @Inject(ConfigService)
-    private readonly configService: ConfigService,
-
-    private readonly usersService: UsersService,
+    private configService: ConfigService,
+    private usersService: UsersService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET') || 'super-secret-key',
+      secretOrKey: configService.get('JWT_SECRET'),
     });
   }
 
   async validate(payload: any) {
-    const user = await this.usersService.findOne(payload.sub);
-    const { password, ...result } = user;
-    return {
-      ...result,
-      id: payload.sub,
-      username: payload.username,
-      userType: payload.userType,
-    };
+    const { username, sub, userType } = payload;
+    const user = await this.usersService.findByUsername(username);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return { userId: sub, username, userType };
   }
 }

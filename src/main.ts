@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-  // Hapus atau komentar baris berikut agar CORS tidak diaktifkan
+  // Konfigurasi CORS dinamis dan aman
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = ['https://pemesanan-buruh-fe.vercel.app'];
