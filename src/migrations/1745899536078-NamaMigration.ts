@@ -1,9 +1,10 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class CreateUserAndOrderTables implements MigrationInterface {
-    name = 'CreateUserAndOrderTables'
+export class NamaMigration1745899536078 implements MigrationInterface {
+    name = 'NamaMigration1745899536078';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // Membuat tabel user
         await queryRunner.query(`
             CREATE TABLE "user" (
                 "id" SERIAL PRIMARY KEY,
@@ -11,12 +12,13 @@ export class CreateUserAndOrderTables implements MigrationInterface {
                 "email" VARCHAR(255) NOT NULL UNIQUE,
                 "password" VARCHAR(255) NOT NULL,
                 "role" VARCHAR(20) NOT NULL,
-                "skills" TEXT[],
+                "skills" TEXT[], -- Array keahlian untuk buruh
                 "created_at" TIMESTAMP DEFAULT now(),
                 "updated_at" TIMESTAMP DEFAULT now()
             )
         `);
 
+        // Membuat tabel order
         await queryRunner.query(`
             CREATE TABLE "order" (
                 "id" SERIAL PRIMARY KEY,
@@ -34,6 +36,7 @@ export class CreateUserAndOrderTables implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        // Menghapus tabel order dan user jika migrasi di-rollback
         await queryRunner.query(`DROP TABLE "order"`);
         await queryRunner.query(`DROP TABLE "user"`);
     }
