@@ -5,32 +5,34 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api'); // Menetapkan prefix untuk semua endpoint API
 
-  // Konfigurasi CORS dinamis dan aman
+  // Mengonfigurasi CORS yang lebih aman
   app.enableCors({
-    origin: ['https://pemesanan-buruh-fe.vercel.app'], // domain frontend
+    origin: ['https://your-frontend-domain.com'], // Ganti dengan domain frontend kamu
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    credentials: true, // Menyertakan credentials jika diperlukan
   });
 
-  // Swagger setup
+  // Konfigurasi Swagger
   const config = new DocumentBuilder()
-    .setTitle('Pemesanan jasa buruh API')
-    .addBearerAuth()
-    .addSecurityRequirements('bearer')
+    .setTitle('Pemesanan Jasa Buruh API') // Ganti judul dengan API yang sesuai
+    .setDescription('API untuk aplikasi pemesanan jasa buruh') // Deskripsi API
+    .setVersion('1.0') // Versi API
+    .addBearerAuth() // Autentikasi menggunakan Bearer token
+    .addSecurityRequirements('bearer') // Keamanan menggunakan bearer token
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
 
-  // Serve raw OpenAPI JSON
+  // Endpoint untuk menyediakan OpenAPI JSON
   app.use('/api/swagger-json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(document);
   });
 
-  // Serve Swagger UI
+  // Endpoint untuk menampilkan Swagger UI
   app.use('/api/swagger', (req, res) => {
     res.send(`
       <!DOCTYPE html>
@@ -45,7 +47,7 @@ async function bootstrap() {
           <script>
             window.onload = function () {
               SwaggerUIBundle({
-                url: '/api/swagger-json',
+                url: '/api/swagger-json', // Menunjukkan URL untuk OpenAPI JSON
                 dom_id: '#swagger-ui',
               });
             };
@@ -55,8 +57,11 @@ async function bootstrap() {
     `);
   });
 
+  // Menambahkan Global Validation Pipe untuk validasi data yang masuk
   app.useGlobalPipes(new ValidationPipe());
 
+  // Menjalankan aplikasi pada port yang sudah ditentukan di environment atau port default 3000
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();
