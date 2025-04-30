@@ -8,8 +8,12 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Hapus atau komentar baris berikut agar CORS tidak diaktifkan
-  // app.enableCors();
-
+  app.enableCors({
+    origin: 'https://pemesanan-buruh-fe.vercel.app/',  // Ganti dengan URL frontend Anda
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+  });
+  
   const config = new DocumentBuilder()
     .setTitle('Pemesanan jasa buruh API')
     .addBearerAuth()
