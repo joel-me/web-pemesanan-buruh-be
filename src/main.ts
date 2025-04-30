@@ -9,7 +9,7 @@ async function bootstrap() {
 
 
   app.enableCors({
-    origin: 'https://pemesanan-buruh-fe.vercel.app/',  // Ganti dengan URL frontend Anda
+    origin: 'https://pemesanan-buruh-fe.vercel.app',  // Ganti dengan URL frontend Anda
     methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
   });
