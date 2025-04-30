@@ -9,19 +9,12 @@ async function bootstrap() {
 
   // Konfigurasi CORS dinamis dan aman
   app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins = ['https://pemesanan-buruh-fe.vercel.app'];
-
-      // Izinkan jika origin ada dalam daftar atau jika request tanpa origin (misalnya dari Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type,Authorization',
+    origin: ['https://web-pemesanan-buruh-fe.vercel.app'], // URL frontend yang sesuai
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
+  
 
   // Swagger setup
   const config = new DocumentBuilder()
