@@ -9,10 +9,10 @@ async function bootstrap() {
 
   // Mengonfigurasi CORS yang lebih aman
   app.enableCors({
-    origin: ['https://your-frontend-domain.com'], // Ganti dengan domain frontend kamu
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true, // Menyertakan credentials jika diperlukan
+    origin: '*',  // Mengizinkan semua origin
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true,  // Menyertakan cookies atau credential lainnya jika diperlukan
   });
 
   // Konfigurasi Swagger
