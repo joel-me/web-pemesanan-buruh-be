@@ -7,26 +7,38 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-
+  // Hapus atau komentar baris berikut agar CORS tidak diaktifkan
   app.enableCors({
-    origin: 'https://pemesanan-buruh-fe.vercel.app',  // Ganti dengan URL frontend Anda
+    origin: (origin, callback) => {
+      const allowedOrigins = ['https://pemesanan-buruh-fe.vercel.app'];
+
+      // Izinkan jika origin ada dalam daftar atau jika request tanpa origin (misalnya dari Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
   });
-  
+
+  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Pemesanan jasa buruh API')
     .addBearerAuth()
     .addSecurityRequirements('bearer')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
+
   // Serve raw OpenAPI JSON
   app.use('/api/swagger-json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(document);
   });
 
-  // Serve Swagger UI HTML (from CDN)
+  // Serve Swagger UI
   app.use('/api/swagger', (req, res) => {
     res.send(`
       <!DOCTYPE html>
@@ -52,6 +64,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
