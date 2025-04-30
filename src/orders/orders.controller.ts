@@ -10,7 +10,12 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -20,95 +25,78 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserType } from '../users/entities/user.entity';
 
 @ApiTags('orders')
+@ApiBearerAuth()
 @Controller('orders')
-@UseGuards(JwtAuthGuard) // Apply JWT authentication globally to this controller
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // Endpoint for creating a new order (Farmer only)
+  // 🔹 Create order (Farmer only)
   @Post()
-  @UseGuards(RolesGuard) // Ensure the user has the correct role
-  @Roles(UserType.FARMER) // Only FARMER can create orders
-  @ApiBearerAuth()
+  @Roles(UserType.FARMER)
   @ApiOperation({ summary: 'Create a new order (Farmer only)' })
   @ApiResponse({ status: 201, description: 'Order created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - User is not a farmer' })
-  @ApiResponse({ status: 400, description: 'Bad Request - Invalid input data' })
   async create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
-    try {
-      // Ensure the user is authorized and create the order
-      return await this.ordersService.create(createOrderDto, req.user.id);
-    } catch (error) {
-      throw new ForbiddenException('Unable to create order, please ensure you are a farmer.');
-    }
+    return this.ordersService.create(createOrderDto, req.user.id);
   }
 
-  // Endpoint to get all orders assigned to the logged-in laborer
+  // 🔹 Get orders assigned to laborer
   @Get('my-orders')
-  @UseGuards(RolesGuard)
-  @Roles(UserType.LABORER) // Only LABORER can view their assigned orders
-  @ApiBearerAuth()
+  @Roles(UserType.LABORER)
   @ApiOperation({
     summary: 'Get all orders assigned to the logged-in laborer (Laborer only)',
   })
-  @ApiResponse({ status: 200, description: 'Return all orders assigned to the laborer' })
-  @ApiResponse({ status: 403, description: 'Forbidden - User is not a laborer' })
+  @ApiResponse({ status: 200, description: 'Orders retrieved' })
   async findMyOrders(@Request() req) {
-    try {
-      return await this.ordersService.findOrdersByLaborerId(req.user.id);
-    } catch (error) {
-      throw new ForbiddenException('Unable to fetch orders for this laborer.');
-    }
+    return this.ordersService.findOrdersByLaborerId(req.user.id);
   }
 
-  // Endpoint to get all orders placed by the logged-in farmer
+  // 🔹 Get orders placed by farmer
   @Get('my-placed-orders')
-  @UseGuards(RolesGuard)
-  @Roles(UserType.FARMER) // Only FARMER can view their placed orders
-  @ApiBearerAuth()
+  @Roles(UserType.FARMER)
   @ApiOperation({
     summary: 'Get all orders placed by the logged-in farmer (Farmer only)',
   })
-  @ApiResponse({ status: 200, description: 'Return all orders placed by the farmer' })
-  @ApiResponse({ status: 403, description: 'Forbidden - User is not a farmer' })
+  @ApiResponse({ status: 200, description: 'Orders retrieved' })
   async findMyPlacedOrders(@Request() req) {
-    try {
-      return await this.ordersService.findOrdersByFarmerId(req.user.id);
-    } catch (error) {
-      throw new ForbiddenException('Unable to fetch placed orders for this farmer.');
-    }
+    return this.ordersService.findOrdersByFarmerId(req.user.id);
   }
 
-  // Endpoint to update the status of an order (Laborer only)
+  // 🔹 Update order status (Laborer only)
   @Patch(':id/status')
-  @UseGuards(RolesGuard)
-  @Roles(UserType.LABORER) // Only LABORER can update the status of orders they are assigned to
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update the status of an order (Laborer only)' })
-  @ApiResponse({ status: 200, description: 'Order status updated successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden - User is not a laborer' })
+  @Roles(UserType.LABORER)
+  @ApiOperation({ summary: 'Update order status (Laborer only)' })
+  @ApiResponse({ status: 200, description: 'Order updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  @ApiResponse({ status: 400, description: 'Invalid status update' })
   async updateStatus(
     @Param('id') id: string,
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,
     @Request() req,
   ) {
     try {
-      const updatedOrder = await this.ordersService.updateOrderStatus(
-        +id, // Ensure the order ID is correctly passed
-        updateOrderStatusDto.status, // New status for the order
-        req.user.id, // Laborer's user ID
+      return await this.ordersService.updateOrderStatus(
+        +id,
+        updateOrderStatusDto.status,
+        req.user.id,
       );
-      return updatedOrder;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(`Order with ID ${id} not found`);
       } else if (error instanceof ForbiddenException) {
         throw new ForbiddenException('You can only update your own orders');
       } else {
-        throw error; // Re-throw any other unexpected errors
+        throw error;
       }
     }
+  }
+
+  // 🔹 (Optional) Get a single order by ID (for debug or admin)
+  @Get(':id')
+  @ApiOperation({ summary: 'Get an order by ID (for authorized users)' })
+  @ApiResponse({ status: 200, description: 'Order retrieved' })
+  async findOne(@Param('id') id: string) {
+    return this.ordersService.findOne(+id);
   }
 }
