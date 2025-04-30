@@ -9,12 +9,11 @@ async function bootstrap() {
 
   // Konfigurasi CORS dinamis dan aman
   app.enableCors({
-    origin: ['https://web-pemesanan-buruh-fe.vercel.app'], // URL frontend yang sesuai
+    origin: ['https://pemesanan-buruh-fe.vercel.app'], // domain frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
-  
 
   // Swagger setup
   const config = new DocumentBuilder()
