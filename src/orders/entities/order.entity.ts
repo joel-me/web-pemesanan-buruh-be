@@ -29,11 +29,25 @@ export class Order {
   @Column()
   description: string;
 
-  @ManyToOne(() => User, { nullable: false })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdDate: Date;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  dueDate: Date | null;
+
+  // Many-to-one relationship with the farmer (User)
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'farmerId' })
   farmer: User;
 
-  @ManyToOne(() => User, { nullable: false })
+  // Many-to-one relationship with the laborer (User)
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'laborerId' })
   laborer: User;
 }
