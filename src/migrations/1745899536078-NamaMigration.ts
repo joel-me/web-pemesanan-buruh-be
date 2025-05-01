@@ -29,7 +29,6 @@ export class NamaMigration1745899536078 implements MigrationInterface {
                 "laborerId" INTEGER,
                 "created_at" TIMESTAMP DEFAULT now(),
                 "updated_at" TIMESTAMP DEFAULT now(),
-                "dueDate" TIMESTAMP, -- Menambahkan kolom dueDate
                 CONSTRAINT "FK_order_farmerId" FOREIGN KEY ("farmerId") REFERENCES "user" ("id") ON DELETE SET NULL,
                 CONSTRAINT "FK_order_laborerId" FOREIGN KEY ("laborerId") REFERENCES "user" ("id") ON DELETE SET NULL
             )

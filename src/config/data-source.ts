@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
-import { User } from "../users/entities/user.entity";
-import { Order } from "../orders/entities/order.entity";
+import { User } from "../users/entities/user.entity"; // pastikan file ini ada
+import { Order } from "../orders/entities/order.entity"; // pastikan file ini ada
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -15,6 +15,10 @@ export const AppDataSource = new DataSource({
   entities: [User, Order],
   migrations: ["src/migrations/*.ts"],
   ssl: {
-    rejectUnauthorized: false, // <<-- ini yang penting
+    rejectUnauthorized: false,
+  },
+  extra: {
+    connectionTimeoutMillis: 20000, // 20 detik
+    statement_timeout: 20000, // Timeout untuk query
   },
 });

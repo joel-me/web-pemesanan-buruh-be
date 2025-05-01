@@ -29,18 +29,6 @@ export class Order {
   @Column()
   description: string;
 
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdDate: Date;
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  dueDate: Date | null;
-
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'farmerId' })
   farmer: User;
