@@ -41,13 +41,11 @@ export class Order {
   })
   dueDate: Date | null;
 
-  // Many-to-one relationship with the farmer (User)
-  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'farmerId' })
   farmer: User;
 
-  // Many-to-one relationship with the laborer (User)
-  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'laborerId' })
   laborer: User;
 }
