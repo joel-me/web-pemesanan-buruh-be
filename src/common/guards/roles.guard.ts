@@ -6,21 +6,21 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // Mengambil roles yang diperlukan dari metadata
+    // Mengambil roles yang dibutuhkan dari metadata
     const requiredRoles = this.reflector.getAllAndOverride<string[]>('roles', [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    // Jika tidak ada roles yang diperlukan, maka akses diberikan
+    // Jika tidak ada role yang dibutuhkan, izinkan akses
     if (!requiredRoles) {
       return true;
     }
 
-    // Mengambil user dari request
+    // Ambil user dari request (dari JWT yang didecode)
     const { user } = context.switchToHttp().getRequest();
-    
-    // Memeriksa apakah role user ada dalam requiredRoles
-    return requiredRoles.some((role) => user.userType === role);
+
+    // Pastikan user memiliki role yang dibutuhkan
+    return requiredRoles.some((role) => user.role === role);
   }
 }
