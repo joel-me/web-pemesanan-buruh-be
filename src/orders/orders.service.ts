@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
@@ -13,10 +13,18 @@ export class OrdersService {
     private readonly usersService: UsersService,
   ) {}
 
+  // Fungsi untuk membuat order baru
   async create(createOrderDto: CreateOrderDto, farmerId: number): Promise<Order> {
+    // Validasi bahwa startDate tidak lebih besar dari endDate
+    if (new Date(createOrderDto.startDate) > new Date(createOrderDto.endDate)) {
+      throw new BadRequestException('Start date cannot be later than end date');
+    }
+
+    // Ambil data laborer dan farmer berdasarkan ID
     const laborer = await this.usersService.findOne(createOrderDto.laborerId);
     const farmer = await this.usersService.findOne(farmerId);
 
+    // Membuat order baru
     const order = this.ordersRepository.create({
       description: createOrderDto.description,
       status: OrderStatus.PENDING,
@@ -26,9 +34,11 @@ export class OrdersService {
       farmer: farmer,
     });
 
+    // Menyimpan order ke database
     return this.ordersRepository.save(order);
   }
 
+  // Fungsi untuk mendapatkan order berdasarkan ID laborer
   async findOrdersByLaborerId(laborerId: number): Promise<Order[]> {
     return this.ordersRepository.find({
       where: { laborerId },
@@ -36,6 +46,7 @@ export class OrdersService {
     });
   }
 
+  // Fungsi untuk mendapatkan order berdasarkan ID farmer
   async findOrdersByFarmerId(farmerId: number): Promise<Order[]> {
     return this.ordersRepository.find({
       where: { farmerId },
@@ -43,6 +54,7 @@ export class OrdersService {
     });
   }
 
+  // Fungsi untuk mendapatkan order berdasarkan ID
   async findOne(id: number): Promise<Order> {
     const order = await this.ordersRepository.findOne({
       where: { id },
@@ -56,6 +68,7 @@ export class OrdersService {
     return order;
   }
 
+  // Fungsi untuk memperbarui status order
   async updateOrderStatus(id: number, status: OrderStatus, laborerId: number): Promise<Order> {
     const order = await this.findOne(id);
 

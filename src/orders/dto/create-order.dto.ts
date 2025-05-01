@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsDateString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateOrderDto {
@@ -14,6 +14,7 @@ export class CreateOrderDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Min(1)  // Add this validation to ensure wage is greater than 0
   @ApiProperty({ example: 100000, description: 'The wage for the job in IDR.' })
   wage: number;
 
