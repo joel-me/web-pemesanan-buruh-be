@@ -30,17 +30,18 @@ export class AuthService {
   // Login
   async login(user: any) {
     try {
-      const payload = { username: user.username, sub: user.id, userType: user.userType };
+      const payload = { username: user.username, sub: user.id, role: user.userType };
       return {
         user: {
           id: user.id,
           username: user.username,
           email: user.email,
-          userType: user.userType,
+          role: user.userType, // mapping userType menjadi role
           skills: user.skills,
         },
-        access_token: this.jwtService.sign(payload), // Generate JWT
+        access_token: this.jwtService.sign(payload),
       };
+      
     } catch (error) {
       throw new InternalServerErrorException("Error during login process");
     }

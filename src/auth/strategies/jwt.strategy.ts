@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport'; // Ganti ke PassportStrategy
+import { PassportStrategy } from '@nestjs/passport'; // Gunakan PassportStrategy
 import { ExtractJwt, Strategy } from 'passport-jwt'; // Gunakan Strategy dari passport-jwt
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
@@ -19,11 +19,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) { // Gunakan Passpor
   }
 
   async validate(payload: any) {
-    const { username, sub, userType } = payload;
+    const { username, sub, role } = payload; // Ubah userType menjadi role
     const user = await this.usersService.findByUsername(username);
     if (!user) {
       throw new Error('User not found');
     }
-    return { userId: sub, username, userType };
+    return { userId: sub, username, role }; // Ubah userType menjadi role
   }
 }
